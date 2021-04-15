@@ -2,43 +2,69 @@ package init.stack.api.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.*;
+import com.mongodb.client.*;
 import init.stack.api.model.Pizza;
+import init.stack.api.verif.PizzaVerifDecoration;
 import init.stack.api.verif.PizzaVerifId;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.bson.Document;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.function.Consumer;
+import java.util.*;
+
 
 @RestController
 public class PizzaController {
 
-    // -- Checkers
+    // -- VARS
     private static PizzaVerifId ref_PizzaVerifId = new PizzaVerifId();
+    private static PizzaVerifDecoration ref_PizzaVerifDecoration = new PizzaVerifDecoration();
 
-    // -- GET
+
+    // -- GET ----------------------------------------------------------------------------------------------------------
     @GetMapping("/pizzas")
     public ResponseEntity<JsonNode> getAllPizza() {
 
-        ////////////////////////////////////////////////////////////
-        // -- Retrieve arraylist pizza in mongo
+        // -- Get pizza of mongo
         ArrayList<Pizza> ref_ArrayListPizza = new ArrayList<>();
-        Pizza a = new Pizza();
-        Pizza b = new Pizza();
-        Pizza c = new Pizza();
-        Pizza d = new Pizza();
 
-        ref_ArrayListPizza.add(a);
-        ref_ArrayListPizza.add(b);
-        ref_ArrayListPizza.add(c);
-        ref_ArrayListPizza.add(d);
+        // -- Init mongo
+        MongoCredential credential = MongoCredential.createCredential("userpizza", "auchan-init-stack", "1234".toCharArray());
+        MongoClientOptions options = MongoClientOptions.builder().sslEnabled(false).build();
+        MongoClient ref_MongoClient = new MongoClient(new ServerAddress("127.0.0.1", 27017), Arrays.asList(credential), options);
 
-        ////////////////////////////////////////////////////////////
+        MongoDatabase ref_MongoDatabaseDatabase = ref_MongoClient.getDatabase("auchan-init-stack");
+        MongoCollection ref_MongoCollection = ref_MongoDatabaseDatabase.getCollection("pizza");
+
+        FindIterable<Document> ref_FindIterable =  ref_MongoCollection.find();
+        Iterator<Document> ref_MongoCursor = ref_FindIterable.iterator();
+
+        while(ref_MongoCursor.hasNext() == Boolean.TRUE) {
+
+            // -- Get Document
+            Document ref_Doc = ref_MongoCursor.next();
+
+            System.out.println( ref_Doc.get("_id"));
+            System.out.println( ref_Doc.get("flavor"));
+            System.out.println( ref_Doc.get("size"));
+            System.out.println( ref_Doc.get("spicy"));
+
+            // -- Build pizza
+            Pizza ref_Pizza = new Pizza();
+            ref_Pizza.setId(ref_Doc.get("_id").toString());
+            ref_Pizza.setPizzaFlavor( ref_Doc.get("flavor").toString());
+            ref_Pizza.setPizzaSize( ref_Doc.get("size").toString());
+            ref_Pizza.setPizzaSpicy(ref_Doc.get("spicy").toString());
+
+            // -- Push pizza
+            ref_ArrayListPizza.add(ref_Pizza);
+
+        }
+
 
         // -- Init response
         StringBuilder ref_StringBuilder_PizzaListJson = new StringBuilder();
@@ -124,9 +150,39 @@ public class PizzaController {
         ////////////////////////////////////////////////////////////////////
         // -- Get pizza of mongo
         Pizza ref_Pizza = new Pizza(); // Recupere de mongo
-        ref_Pizza.setPizzaFlavor("cheese");
-        ref_Pizza.setPizzaSize("l");
-        ref_Pizza.setPizzaSpicy("true");
+
+        // -- Init mongo
+        MongoCredential credential = MongoCredential.createCredential("userpizza", "auchan-init-stack", "1234".toCharArray());
+        MongoClientOptions options = MongoClientOptions.builder().sslEnabled(false).build();
+        MongoClient ref_MongoClient = new MongoClient(new ServerAddress("127.0.0.1", 27017), Arrays.asList(credential), options);
+
+        MongoDatabase ref_MongoDatabaseDatabase = ref_MongoClient.getDatabase("auchan-init-stack");
+        MongoCollection ref_MongoCollection = ref_MongoDatabaseDatabase.getCollection("pizza");
+
+        BasicDBObject whereQuery = new BasicDBObject();
+        whereQuery.put("_id", ref_String_Id);
+        FindIterable<Document> ref_FindIterable =  ref_MongoCollection.find(whereQuery);
+        Iterator<Document> ref_MongoCursor = ref_FindIterable.iterator();
+
+        while(ref_MongoCursor.hasNext() == Boolean.TRUE) {
+
+            // -- Get Document
+            Document ref_Doc = ref_MongoCursor.next();
+
+            System.out.println( ref_Doc.get("_id"));
+            System.out.println( ref_Doc.get("flavor"));
+            System.out.println( ref_Doc.get("size"));
+            System.out.println( ref_Doc.get("spicy"));
+
+            ref_Pizza.setId(ref_Doc.get("_id").toString());
+            ref_Pizza.setPizzaFlavor( ref_Doc.get("flavor").toString());
+            ref_Pizza.setPizzaSize( ref_Doc.get("size").toString());
+            ref_Pizza.setPizzaSpicy(ref_Doc.get("spicy").toString());
+
+        }
+
+
+
         ////////////////////////////////////////////////////////////////////
 
         // -- retrieve by db
@@ -207,23 +263,35 @@ public class PizzaController {
 
     }
 
-    // -- POST
     @GetMapping("/pizzaCreation")
     public ResponseEntity<JsonNode> createPizza(HttpServletRequest ref_HttpServletRequest) {
 
-        // -- Create pizza
-        Pizza ref_CreatePizza = new Pizza();
+        // -- Create ID
 
-        /////////////////////////////////////////////////////////
-        // -- Persist in mongo
-        /////////////////////////////////////////////////////////
+        String ref_String_id_Pizza = UUID.randomUUID().toString();
 
-        // -- Retrieve id of mongo
-        String ref_String_Id= "1231321";
+        // -- Init mongo
+        MongoCredential credential = MongoCredential.createCredential("userpizza", "auchan-init-stack", "1234".toCharArray());
+        MongoClientOptions options = MongoClientOptions.builder().sslEnabled(false).build();
+        MongoClient ref_MongoClient = new MongoClient(new ServerAddress("127.0.0.1", 27017), Arrays.asList(credential), options);
+
+        MongoDatabase ref_MongoDatabaseDatabase = ref_MongoClient.getDatabase("auchan-init-stack");
+        MongoCollection ref_MongoCollection = ref_MongoDatabaseDatabase.getCollection("pizza");
+
+        // -- Commit
+        Document ref_Document = new Document();
+
+        ref_Document.append("_id", ref_String_id_Pizza);
+        ref_Document.append("flavor", "Not set");
+        ref_Document.append("size", "Not set");
+        ref_Document.append("spicy", "Not set");
+
+        // -- Insert in mongo
+        ref_MongoCollection.insertOne(ref_Document);
 
         // -- Build response
         String ref_String_ToFormat = "{\"id\":\"%s\"}";
-        String ref_String_FinalJson = String.format(ref_String_ToFormat, ref_String_Id);
+        String ref_String_FinalJson = String.format(ref_String_ToFormat, ref_String_id_Pizza);
         ObjectMapper mapper = new ObjectMapper();
         JsonNode ref_JsonNode = null;
 
@@ -242,9 +310,126 @@ public class PizzaController {
 
     }
 
+
+    // -- POST ----------------------------------------------------------------------------------------------------------
     @PostMapping("/pizzaDecoration")
-    public Pizza decoratePizza(@RequestBody Pizza ref_DecoratePizza) {
-        return ref_DecoratePizza;
+    public ResponseEntity<JsonNode> decoratePizza(HttpServletRequest ref_HttpServletRequest) {
+
+        // -- Get query String
+        String ref_String_QueryString = ref_HttpServletRequest.getQueryString();
+
+        // -- Execute
+        HashMap<String,Object> ref_HashMap_Executed = ref_PizzaVerifDecoration.verify_Frame(ref_String_QueryString);
+
+        // -- Check
+        if(((String)ref_HashMap_Executed.get(PizzaVerifDecoration.REF_STRING_CONS_REPONSE_KEY_STATUS))
+                .equals(PizzaVerifDecoration.REF_STRING_VERIF_VALUE_OK)){
+
+            // -- Retrieve data
+            HashMap<String,String> ref_HashMap_Data
+                    =(HashMap<String,String>) ref_HashMap_Executed
+                    .get(PizzaVerifDecoration.REF_STRING_CONS_REPONSE_KEY_DATA);
+
+            // -- Extract
+            String ref_String_Id = ref_HashMap_Data.get(PizzaVerifDecoration.REF_STRING_CONS_REPONSE_DATA_KEY_ID);
+            String ref_String_Flavor = ref_HashMap_Data.get(PizzaVerifDecoration.REF_STRING_CONS_REPONSE_DATA_KEY_FLAVOR);
+            String ref_String_Size = ref_HashMap_Data.get(PizzaVerifDecoration.REF_STRING_CONS_REPONSE_DATA_KEY_SIZE);
+            String ref_String_Spicy = ref_HashMap_Data.get(PizzaVerifDecoration.REF_STRING_CONS_REPONSE_DATA_KEY_SPICY);
+
+            // -- Log
+            System.out.println("ref_String_Id=" + ref_String_Id);
+
+            ////////////////////////////////////////////////////////////////////
+            // -- Get pizza of mongo by id
+            Pizza ref_Pizza = new Pizza(); // Recupere de mongo
+
+            ////////////////////////////////////////////////////////////////////
+
+            // -- retrieve by db
+            if(ref_Pizza == null) {
+
+                // -- Init response
+                String ref_String_Message = "{\"message\":\"Unknown pizza\"}";
+
+                // -- Build response
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode ref_JsonNode = null;
+
+                try {
+
+                    ref_JsonNode = mapper.readTree(ref_String_Message);
+
+                } catch (JsonProcessingException ref_JsonProcessingException) {
+
+                    // -- Log
+                    ref_JsonProcessingException.printStackTrace();
+                }
+
+                // -- Commit
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ref_JsonNode);
+
+            }
+
+            ////////////////////////////////////////////////////
+
+            // Set in mongo
+         /*   // -- Extract
+           ref_String_Id
+            ref_String_Flavor
+             ref_String_Size
+           ref_String_Spicy
+            */
+
+            //////////////////////////////////////////////////////
+            // -- Init response
+            String ref_String_FinalJson = "{\"message\":\"Pizza updated\"}";
+
+            // -- Build response
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode ref_JsonNode = null;
+
+            try {
+
+                ref_JsonNode = mapper.readTree(ref_String_FinalJson);
+
+            } catch (JsonProcessingException ref_JsonProcessingException) {
+
+                // -- Log
+                ref_JsonProcessingException.printStackTrace();
+            }
+
+            // -- Commit
+            return ResponseEntity.ok(ref_JsonNode);
+
+
+        }else{
+
+            System.out.println("STP E");
+            // -- Retrieve exception
+            Exception ref_Exception = (Exception) ref_HashMap_Executed.get(PizzaVerifId.REF_STRING_CONS_REPONSE_KEY_EXCEPTION);
+
+            // -- Init response
+            String ref_String_ToFormat = "{\"message\":\"%s\"}";
+
+            // -- Build response
+            String ref_String_FinalString = String.format(ref_String_ToFormat, ref_Exception.getMessage());
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode ref_JsonNode = null;
+
+            try {
+
+                ref_JsonNode = mapper.readTree(ref_String_FinalString);
+
+            } catch (JsonProcessingException ref_JsonProcessingException) {
+
+                // -- Log
+                ref_JsonProcessingException.printStackTrace();
+            }
+
+            // -- Commit
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ref_JsonNode);
+
+        }
     }
 
 }

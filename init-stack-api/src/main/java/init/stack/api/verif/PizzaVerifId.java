@@ -19,7 +19,7 @@ public class PizzaVerifId {
     public static final int REF_INT_OFFSET_SIZE = 3;
     public static final int REF_INT_OFFSET_SPICY = 4;
 
-    public static final String REF_STRING_REGEX_ID = "^id=([0-9]{1,})$";
+    public static final String REF_STRING_REGEX_ID = "^id=([0-9 a-z A-Z -]{1,})$";
 
 
     // -- CONS REPONSE KEY

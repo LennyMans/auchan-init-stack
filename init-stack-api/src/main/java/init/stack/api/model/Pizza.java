@@ -1,10 +1,10 @@
 package init.stack.api.model;
 
 
+
 public class Pizza {
 
     private String ref_String_PizzaId = "No Set";
-
     private String ref_String_PizzaFlavor = "No Set";
     private String ref_String_PizzaSize = "No Set";
     private String ref_String_PizzaSpicy = "No Set";

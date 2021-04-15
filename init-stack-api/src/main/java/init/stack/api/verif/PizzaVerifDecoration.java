@@ -12,8 +12,7 @@ public class PizzaVerifDecoration {
     public static final int REF_INT_OFFSET_SIZE = 3;
     public static final int REF_INT_OFFSET_SPICY = 4;
 
-    public static final String REF_STRING_REGEX_DECORATEPIZZA = "^id=([0-9]{1,})&flavor=(cheese|meat|vegan|vegetarian)&size=(l|m|xl)&spicy=(true|false)$";
-
+    public static final String REF_STRING_REGEX_DECORATEPIZZA = "^id=([0-9 a-z A-Z -]{1,})&flavor=(cheese|meat|vegan|vegetarian)&size=(l|m|xl)&spicy=(true|false)$";
 
     // -- CONS REPONSE KEY
     public static String REF_STRING_CONS_REPONSE_KEY_STATUS = "REF_STRING_CONS_REPONSE_KEY_STATUS";
@@ -32,69 +31,9 @@ public class PizzaVerifDecoration {
     public static String REF_STRING_VERIF_VALUE_NOK = "REF_STRING_VERIF_NOK";
 
 
-
-    // -- ENTRY POINT --------------------------------------------------------------------------------------------------
-
-    public static void main (String [] ref_Array_String_Arg){
-
-        // -- Ini test
-        String ref_String_A = "id=1234&flavor=vegetarian&size=l&spicy=true";
-
-        // -- Instance
-        PizzaVerifDecoration ref_PizzaVerifDecoration = new PizzaVerifDecoration();
-        ref_PizzaVerifDecoration.execute(ref_String_A);
-
-    }
-
-
-
     // -- WORKER -------------------------------------------------------------------------------------------------------
 
-    public void execute(String ref_String_FrameToCheck){
-
-        // -- Execute
-        HashMap<String,Object> ref_HashMap_Executed = this.verify_Frame(ref_String_FrameToCheck);
-
-        // -- Check
-        if(((String)ref_HashMap_Executed.get(REF_STRING_CONS_REPONSE_KEY_STATUS)).equals(REF_STRING_VERIF_VALUE_OK)){
-
-            // -- Retrieve data
-            HashMap<String,String> ref_HashMap_Data =(HashMap<String,String>) ref_HashMap_Executed.get(REF_STRING_CONS_REPONSE_KEY_DATA);
-
-            // -- Extract
-            String ref_String_Id = ref_HashMap_Data.get(REF_STRING_CONS_REPONSE_DATA_KEY_ID);
-            String ref_String_Flavor = ref_HashMap_Data.get(REF_STRING_CONS_REPONSE_DATA_KEY_FLAVOR);
-            String ref_String_Size = ref_HashMap_Data.get(REF_STRING_CONS_REPONSE_DATA_KEY_SIZE);
-            String ref_String_Spicy = ref_HashMap_Data.get(REF_STRING_CONS_REPONSE_DATA_KEY_SPICY);
-
-            // -- Log
-            System.out.println("ref_String_Id=" + ref_String_Id);
-            System.out.println("ref_String_Flavor=" + ref_String_Flavor);
-            System.out.println("ref_String_Size=" + ref_String_Size);
-            System.out.println("ref_String_Spicy=" + ref_String_Spicy);
-
-
-            // PERSIT EN DB ET RENVOIT REPONSE
-
-
-        }else{
-
-            // RENVOIT REPONSE
-
-
-            // -- Retrieve exception
-            Exception ref_Exception = (Exception) ref_HashMap_Executed.get(REF_STRING_CONS_REPONSE_KEY_EXCEPTION);
-
-
-            System.out.println(ref_Exception.getMessage());
-
-        }
-
-
-
-    }
-
-    private HashMap<String,Object> verify_Frame(String ref_String_ParameterFrame){
+    public HashMap<String,Object> verify_Frame(String ref_String_ParameterFrame){
 
         // -- LOG
         System.out.println("FRAME ANALYSED=" + ref_String_ParameterFrame);
@@ -134,7 +73,7 @@ public class PizzaVerifDecoration {
 
             // -- Init response
             ref_HashMap_Response.put(REF_STRING_CONS_REPONSE_KEY_STATUS, REF_STRING_VERIF_VALUE_NOK);
-            ref_HashMap_Response.put(REF_STRING_CONS_REPONSE_KEY_EXCEPTION, new Exception());
+            ref_HashMap_Response.put(REF_STRING_CONS_REPONSE_KEY_EXCEPTION, new Exception("Wrong parameter format"));
 
         }
 
