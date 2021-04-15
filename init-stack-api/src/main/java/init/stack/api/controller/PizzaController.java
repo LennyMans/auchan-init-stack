@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.*;
 import com.mongodb.client.*;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.result.UpdateResult;
 import init.stack.api.model.Pizza;
 import init.stack.api.verif.PizzaVerifDecoration;
 import init.stack.api.verif.PizzaVerifId;
@@ -15,6 +17,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+
+import static com.mongodb.client.model.Updates.combine;
+import static com.mongodb.client.model.Updates.set;
 
 
 @RestController
@@ -267,7 +272,6 @@ public class PizzaController {
     public ResponseEntity<JsonNode> createPizza(HttpServletRequest ref_HttpServletRequest) {
 
         // -- Create ID
-
         String ref_String_id_Pizza = UUID.randomUUID().toString();
 
         // -- Init mongo
@@ -336,57 +340,35 @@ public class PizzaController {
             String ref_String_Size = ref_HashMap_Data.get(PizzaVerifDecoration.REF_STRING_CONS_REPONSE_DATA_KEY_SIZE);
             String ref_String_Spicy = ref_HashMap_Data.get(PizzaVerifDecoration.REF_STRING_CONS_REPONSE_DATA_KEY_SPICY);
 
+            // -- Bind to document
+            BasicDBObject  ref_Document_Updated= new BasicDBObject();
+                ref_Document_Updated.append("flavor",ref_String_Flavor);
+                ref_Document_Updated.append("size", ref_String_Size);
+                ref_Document_Updated.append("spicy", ref_String_Spicy);
+
             // -- Log
             System.out.println("ref_String_Id=" + ref_String_Id);
 
-            ////////////////////////////////////////////////////////////////////
-            // -- Get pizza of mongo by id
-            Pizza ref_Pizza = new Pizza(); // Recupere de mongo
+            // -- Init mongo
+            MongoCredential credential = MongoCredential.createCredential("userpizza", "auchan-init-stack", "1234".toCharArray());
+            MongoClientOptions options = MongoClientOptions.builder().sslEnabled(false).build();
+            MongoClient ref_MongoClient = new MongoClient(new ServerAddress("127.0.0.1", 27017), Arrays.asList(credential), options);
 
-            ////////////////////////////////////////////////////////////////////
+            MongoDatabase ref_MongoDatabaseDatabase = ref_MongoClient.getDatabase("auchan-init-stack");
+            MongoCollection ref_MongoCollection = ref_MongoDatabaseDatabase.getCollection("pizza");
 
-            // -- retrieve by db
-            if(ref_Pizza == null) {
-
-                // -- Init response
-                String ref_String_Message = "{\"message\":\"Unknown pizza\"}";
-
-                // -- Build response
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode ref_JsonNode = null;
-
-                try {
-
-                    ref_JsonNode = mapper.readTree(ref_String_Message);
-
-                } catch (JsonProcessingException ref_JsonProcessingException) {
-
-                    // -- Log
-                    ref_JsonProcessingException.printStackTrace();
-                }
-
-                // -- Commit
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ref_JsonNode);
-
-            }
-
-            ////////////////////////////////////////////////////
-
-            // Set in mongo
-         /*   // -- Extract
-           ref_String_Id
-            ref_String_Flavor
-             ref_String_Size
-           ref_String_Spicy
-            */
-
-            //////////////////////////////////////////////////////
-            // -- Init response
-            String ref_String_FinalJson = "{\"message\":\"Pizza updated\"}";
+            // -- Find
+            UpdateResult ref_UpdateResult = ref_MongoCollection.updateOne(Filters.eq("_id", ref_String_Id), combine(set("flavor",ref_String_Flavor), set("size", ref_String_Size), set("spicy", ref_String_Spicy)));
 
             // -- Build response
+            String ref_String_FinalJson
+                    = ( ref_UpdateResult.wasAcknowledged() == Boolean.TRUE)
+                    ? "{\"message\":\"PizzaUpdated\"}"
+                    : "{\"message\":\"Unknown pizza\"}";
+
             ObjectMapper mapper = new ObjectMapper();
             JsonNode ref_JsonNode = null;
+
 
             try {
 
@@ -400,7 +382,6 @@ public class PizzaController {
 
             // -- Commit
             return ResponseEntity.ok(ref_JsonNode);
-
 
         }else{
 
