@@ -2,21 +2,13 @@ package init.stack.api.model;
 
 
 public class Pizza {
-    private String ref_String_PizzaId;
-    private String ref_String_PizzaFlavor;
-    private String ref_String_PizzaSize;
-    private String ref_String_PizzaSpicy;
 
-    // -- CONSTRUCTOR
-    public Pizza () {
+    private String ref_String_PizzaId = "No Set";
 
-    }
+    private String ref_String_PizzaFlavor = "No Set";
+    private String ref_String_PizzaSize = "No Set";
+    private String ref_String_PizzaSpicy = "No Set";
 
-    public Pizza(String ref_String_PizzaFlavor, String ref_String_PizzaSize, String ref_String_PizzaSpicy) {
-        this.ref_String_PizzaFlavor = ref_String_PizzaFlavor;
-        this.ref_String_PizzaSize = ref_String_PizzaSize;
-        this.ref_String_PizzaSpicy = ref_String_PizzaSpicy;
-    }
 
     // -- GETTERS
     public String getId() {

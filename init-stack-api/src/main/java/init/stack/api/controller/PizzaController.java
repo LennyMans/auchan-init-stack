@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Consumer;
 
 @RestController
 public class PizzaController {
@@ -22,10 +23,78 @@ public class PizzaController {
 
     // -- GET
     @GetMapping("/pizzas")
-    public List<Pizza> getAllPizza() {
-        ArrayList<Pizza> test = new ArrayList<>();
+    public ResponseEntity<JsonNode> getAllPizza() {
 
-        return new ArrayList<>();
+        ////////////////////////////////////////////////////////////
+        // -- Retrieve arraylist pizza in mongo
+        ArrayList<Pizza> ref_ArrayListPizza = new ArrayList<>();
+        Pizza a = new Pizza();
+        Pizza b = new Pizza();
+        Pizza c = new Pizza();
+        Pizza d = new Pizza();
+
+        ref_ArrayListPizza.add(a);
+        ref_ArrayListPizza.add(b);
+        ref_ArrayListPizza.add(c);
+        ref_ArrayListPizza.add(d);
+
+        ////////////////////////////////////////////////////////////
+
+        // -- Init response
+        StringBuilder ref_StringBuilder_PizzaListJson = new StringBuilder();
+
+        String ref_String_ToFormat = "{\"id\":\"%s\", \"flavor\":\"%s\",\"size\":\"%s\",\"spicy\":\"%s\"}";
+        String ref_String_Start = "[";
+        String ref_String_Comma = ",";
+        String ref_String_End = "]";
+
+        // -- Start build
+        ref_StringBuilder_PizzaListJson.append(ref_String_Start);
+
+           for(int ref_Int_Offset_A = 0; ref_Int_Offset_A < ref_ArrayListPizza.size(); ref_Int_Offset_A++) {
+
+                // -- Retrieve pizza unit
+                Pizza ref_Pizza =  ref_ArrayListPizza.get(ref_Int_Offset_A);
+
+                // -- Build node
+                String ref_String_JsonObject
+                        = String.format(ref_String_ToFormat
+                        , ref_Pizza.getId()
+                        , ref_Pizza.getPizzaFlavor()
+                        , ref_Pizza.getPizzaSize()
+                        , ref_Pizza.getPizzaSpicy());
+
+                // -- Add node
+                ref_StringBuilder_PizzaListJson.append(ref_String_JsonObject);
+
+                // -- Check comma
+                   if(ref_Int_Offset_A != ref_ArrayListPizza.size()-1) {
+
+                       ref_StringBuilder_PizzaListJson.append(ref_String_Comma);
+                   }
+            };
+
+        // -- Finish build
+        ref_StringBuilder_PizzaListJson.append(ref_String_End);
+
+        // -- Build response
+        String ref_String_FinalJson = ref_StringBuilder_PizzaListJson.toString();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode ref_JsonNode = null;
+
+        try {
+
+            ref_JsonNode = mapper.readTree(ref_String_FinalJson);
+
+        } catch (JsonProcessingException ref_JsonProcessingException) {
+
+            // -- Log
+            ref_JsonProcessingException.printStackTrace();
+        }
+
+        // -- Commit
+        return ResponseEntity.ok(ref_JsonNode);
+
     }
 
     @GetMapping("/pizza")
@@ -52,11 +121,13 @@ public class PizzaController {
         // -- Log
         System.out.println("ref_String_Id=" + ref_String_Id);
 
+        ////////////////////////////////////////////////////////////////////
         // -- Get pizza of mongo
         Pizza ref_Pizza = new Pizza(); // Recupere de mongo
         ref_Pizza.setPizzaFlavor("cheese");
         ref_Pizza.setPizzaSize("l");
         ref_Pizza.setPizzaSpicy("true");
+        ////////////////////////////////////////////////////////////////////
 
         // -- retrieve by db
         if(ref_Pizza == null) {
@@ -87,7 +158,7 @@ public class PizzaController {
         String ref_String_ToFormat = "{\"flavor\":\"%s\",\"size\":\"%s\",\"spicy\":\"%s\"}";
 
         // -- Build response
-        String ref_String_FinalJson = String.format(ref_String_ToFormat, ref_Pizza.getPizzaFlavor(), ref_Pizza.getPizzaSize(), ref_Pizza.getPizzaSize());
+        String ref_String_FinalJson = String.format(ref_String_ToFormat, ref_Pizza.getPizzaFlavor(), ref_Pizza.getPizzaSize(), ref_Pizza.getPizzaSpicy());
         ObjectMapper mapper = new ObjectMapper();
         JsonNode ref_JsonNode = null;
 
@@ -106,12 +177,13 @@ public class PizzaController {
 
 
     }else{
+
         System.out.println("STP E");
         // -- Retrieve exception
         Exception ref_Exception = (Exception) ref_HashMap_Executed.get(PizzaVerifId.REF_STRING_CONS_REPONSE_KEY_EXCEPTION);
 
         // -- Init response
-        String ref_String_ToFormat = "{\"id\":\"%s\"}";
+        String ref_String_ToFormat = "{\"message\":\"%s\"}";
 
         // -- Build response
         String ref_String_FinalString = String.format(ref_String_ToFormat, ref_Exception.getMessage());
@@ -136,10 +208,38 @@ public class PizzaController {
     }
 
     // -- POST
-    @PostMapping("/pizzaCreation")
-    public Pizza createPizza(@RequestBody Pizza ref_CreatePizza) {
+    @GetMapping("/pizzaCreation")
+    public ResponseEntity<JsonNode> createPizza(HttpServletRequest ref_HttpServletRequest) {
 
-        return ref_CreatePizza;
+        // -- Create pizza
+        Pizza ref_CreatePizza = new Pizza();
+
+        /////////////////////////////////////////////////////////
+        // -- Persist in mongo
+        /////////////////////////////////////////////////////////
+
+        // -- Retrieve id of mongo
+        String ref_String_Id= "1231321";
+
+        // -- Build response
+        String ref_String_ToFormat = "{\"id\":\"%s\"}";
+        String ref_String_FinalJson = String.format(ref_String_ToFormat, ref_String_Id);
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode ref_JsonNode = null;
+
+        try {
+
+            ref_JsonNode = mapper.readTree(ref_String_FinalJson);
+
+        } catch (JsonProcessingException ref_JsonProcessingException) {
+
+            // -- Log
+            ref_JsonProcessingException.printStackTrace();
+        }
+
+        // -- Commit
+        return ResponseEntity.ok(ref_JsonNode);
+
     }
 
     @PostMapping("/pizzaDecoration")

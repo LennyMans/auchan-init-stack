@@ -75,7 +75,7 @@ public class PizzaVerifId {
 
             // -- Init response
             ref_HashMap_Response.put(REF_STRING_CONS_REPONSE_KEY_STATUS, REF_STRING_VERIF_VALUE_NOK);
-            ref_HashMap_Response.put(REF_STRING_CONS_REPONSE_KEY_EXCEPTION, new PizzaNotFoundException());
+            ref_HashMap_Response.put(REF_STRING_CONS_REPONSE_KEY_EXCEPTION, new PizzaNotFoundException("Wrong parameter format"));
 
         }
 
