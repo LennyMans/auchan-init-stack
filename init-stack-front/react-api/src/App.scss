@@ -1,0 +1,28 @@
+@import "../node_modules/bootstrap/scss/bootstrap";
+// Global styling
+
+
+.app {
+    @include media-breakpoint-up(lg) {
+        max-width: 1300px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__command {
+        display: flex;
+        flex-direction: column;
+        margin-top: 2rem;
+        @include media-breakpoint-up(md) {
+            flex-direction: row;
+            justify-content: space-between;
+        }
+    }
+
+    &__customize {
+        @include media-breakpoint-down(sm) {
+            margin-top: 2rem;
+        }
+    }
+}
